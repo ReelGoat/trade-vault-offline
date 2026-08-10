@@ -237,7 +237,7 @@ function Dashboard() {
                   <div className="min-w-0">
                     <p className="truncate text-sm font-semibold">{t.symbol}</p>
                     <p className="truncate text-xs text-muted-foreground">
-                      {formatDate(t.entryDate)} · {t.setupName ?? t.strategy || "No setup"}
+                      {formatDate(t.entryDate)} · {t.setupName ?? (t.strategy || "No setup")}
                     </p>
                   </div>
                 </div>

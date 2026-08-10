@@ -10,7 +10,7 @@ import { safeDate } from "@/services/analytics";
 import { cn } from "@/lib/utils";
 import type { Trade } from "@/services/types";
 
-type LogSearch = { id?: string; date?: string };
+type LogSearch = { id?: string | undefined; date?: string | undefined };
 
 export const Route = createFileRoute("/log")({
   validateSearch: (search: Record<string, unknown>): LogSearch => ({
