@@ -11,9 +11,11 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AnalysisRouteImport } from './routes/analysis'
+import { Route as BackupRouteImport } from './routes/backup'
 import { Route as CalendarRouteImport } from './routes/calendar'
 import { Route as LogRouteImport } from './routes/log'
 import { Route as RulesRouteImport } from './routes/rules'
+import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as SetupsRouteImport } from './routes/setups'
 
 const IndexRoute = IndexRouteImport.update({
@@ -24,6 +26,11 @@ const IndexRoute = IndexRouteImport.update({
 const AnalysisRoute = AnalysisRouteImport.update({
   id: '/analysis',
   path: '/analysis',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BackupRoute = BackupRouteImport.update({
+  id: '/backup',
+  path: '/backup',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CalendarRoute = CalendarRouteImport.update({
@@ -41,6 +48,11 @@ const RulesRoute = RulesRouteImport.update({
   path: '/rules',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SettingsRoute = SettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SetupsRoute = SetupsRouteImport.update({
   id: '/setups',
   path: '/setups',
@@ -50,43 +62,75 @@ const SetupsRoute = SetupsRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/analysis': typeof AnalysisRoute
+  '/backup': typeof BackupRoute
   '/calendar': typeof CalendarRoute
   '/log': typeof LogRoute
   '/rules': typeof RulesRoute
+  '/settings': typeof SettingsRoute
   '/setups': typeof SetupsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/analysis': typeof AnalysisRoute
+  '/backup': typeof BackupRoute
   '/calendar': typeof CalendarRoute
   '/log': typeof LogRoute
   '/rules': typeof RulesRoute
+  '/settings': typeof SettingsRoute
   '/setups': typeof SetupsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/analysis': typeof AnalysisRoute
+  '/backup': typeof BackupRoute
   '/calendar': typeof CalendarRoute
   '/log': typeof LogRoute
   '/rules': typeof RulesRoute
+  '/settings': typeof SettingsRoute
   '/setups': typeof SetupsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/analysis' | '/calendar' | '/log' | '/rules' | '/setups'
+  fullPaths:
+    | '/'
+    | '/analysis'
+    | '/backup'
+    | '/calendar'
+    | '/log'
+    | '/rules'
+    | '/settings'
+    | '/setups'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/analysis' | '/calendar' | '/log' | '/rules' | '/setups'
+  to:
+    | '/'
+    | '/analysis'
+    | '/backup'
+    | '/calendar'
+    | '/log'
+    | '/rules'
+    | '/settings'
+    | '/setups'
   id:
-    '__root__' | '/' | '/analysis' | '/calendar' | '/log' | '/rules' | '/setups'
+    | '__root__'
+    | '/'
+    | '/analysis'
+    | '/backup'
+    | '/calendar'
+    | '/log'
+    | '/rules'
+    | '/settings'
+    | '/setups'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AnalysisRoute: typeof AnalysisRoute
+  BackupRoute: typeof BackupRoute
   CalendarRoute: typeof CalendarRoute
   LogRoute: typeof LogRoute
   RulesRoute: typeof RulesRoute
+  SettingsRoute: typeof SettingsRoute
   SetupsRoute: typeof SetupsRoute
 }
 
@@ -104,6 +148,13 @@ declare module '@tanstack/react-router' {
       path: '/analysis'
       fullPath: '/analysis'
       preLoaderRoute: typeof AnalysisRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/backup': {
+      id: '/backup'
+      path: '/backup'
+      fullPath: '/backup'
+      preLoaderRoute: typeof BackupRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/calendar': {
@@ -127,6 +178,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RulesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/setups': {
       id: '/setups'
       path: '/setups'
@@ -140,9 +198,11 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AnalysisRoute: AnalysisRoute,
+  BackupRoute: BackupRoute,
   CalendarRoute: CalendarRoute,
   LogRoute: LogRoute,
   RulesRoute: RulesRoute,
+  SettingsRoute: SettingsRoute,
   SetupsRoute: SetupsRoute,
 }
 export const routeTree = rootRouteImport
