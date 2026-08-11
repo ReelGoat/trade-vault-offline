@@ -326,30 +326,59 @@ export function TradeForm({
         <div className="space-y-4">
           <div className="panel space-y-3 p-5">
             <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-              Live calculations
+              Trade results
             </p>
-            <div className="grid grid-cols-2 gap-3">
-              <Metric label="Gross P&L" value={formatCurrency(calc.grossPnl, settings.baseCurrency)} tone={calc.grossPnl} />
-              <Metric label="Net P&L" value={formatCurrency(calc.netPnl, settings.baseCurrency)} tone={calc.netPnl} />
-              <Metric label="R multiple" value={`${formatNumber(calc.rMultiple)}R`} tone={calc.rMultiple} />
-              <Metric label="Return" value={`${formatNumber(calc.returnPercent)}%`} tone={calc.returnPercent} />
-              <Metric
-                label="Risk / reward"
-                value={
-                  form.riskAmount > 0 && form.rewardAmount > 0
-                    ? `1 : ${formatNumber(form.rewardAmount / form.riskAmount, 2)}`
-                    : "—"
-                }
-              />
-              <Metric
-                label="Position size"
-                value={formatCurrency(
-                  form.positionSize || Math.abs(form.entryPrice * form.quantity),
-                  settings.baseCurrency,
-                )}
-              />
+            <div className="grid grid-cols-2 gap-4">
+              <Field label={`Gross P&L (${settings.baseCurrency})`}>
+                <Input
+                  type="number"
+                  step="any"
+                  value={form.grossPnl}
+                  onChange={(e) => set("grossPnl", Number(e.target.value) || 0)}
+                />
+              </Field>
+              <Field label={`Net P&L (${settings.baseCurrency})`}>
+                <Input
+                  type="number"
+                  step="any"
+                  value={form.netPnl}
+                  onChange={(e) => set("netPnl", Number(e.target.value) || 0)}
+                />
+              </Field>
+              <Field label="R multiple">
+                <Input
+                  type="number"
+                  step="any"
+                  value={form.rMultiple}
+                  onChange={(e) => set("rMultiple", Number(e.target.value) || 0)}
+                />
+              </Field>
+              <Field label="Return %">
+                <Input
+                  type="number"
+                  step="any"
+                  value={form.returnPercent ?? ""}
+                  onChange={(e) =>
+                    set("returnPercent", e.target.value === "" ? undefined : Number(e.target.value))
+                  }
+                />
+              </Field>
+              <Field label="Risk / reward" hint="Reward per 1 risk, e.g. 2.5">
+                <Input
+                  type="number"
+                  step="any"
+                  value={form.riskRewardRatio ?? ""}
+                  onChange={(e) =>
+                    set(
+                      "riskRewardRatio",
+                      e.target.value === "" ? undefined : Number(e.target.value),
+                    )
+                  }
+                />
+              </Field>
             </div>
           </div>
+
 
           <div className="panel space-y-4 p-5">
             <Field label="Setup">
