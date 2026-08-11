@@ -11,6 +11,7 @@ import {
   Menu,
   X,
   WifiOff,
+  PanelLeft,
 } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
@@ -49,12 +50,14 @@ function NavItem({
   label,
   icon: Icon,
   exact,
+  collapsed,
   onClick,
 }: {
   to: string;
   label: string;
   icon: typeof LayoutDashboard;
   exact?: boolean;
+  collapsed?: boolean;
   onClick?: () => void;
 }) {
   return (
@@ -62,70 +65,96 @@ function NavItem({
       to={to}
       activeOptions={{ exact: Boolean(exact) }}
       onClick={onClick}
-      className="group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground transition-all duration-200 hover:bg-sidebar-accent hover:text-foreground data-[status=active]:bg-sidebar-accent data-[status=active]:text-foreground"
+      title={label}
+      aria-label={label}
+      className={cn(
+        "group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground transition-all duration-200 hover:bg-sidebar-accent hover:text-foreground data-[status=active]:bg-sidebar-accent data-[status=active]:text-foreground",
+        collapsed && "justify-center px-2",
+      )}
     >
       <span className="absolute left-0 top-1/2 h-0 w-[3px] -translate-y-1/2 rounded-full bg-primary transition-all duration-300 group-data-[status=active]:h-5" />
       <Icon className="size-4 shrink-0" />
-      <span className="truncate">{label}</span>
+      {!collapsed && <span className="truncate">{label}</span>}
     </Link>
   );
 }
 
 export function AppShell({ children }: { children: ReactNode }) {
-  const [open, setOpen] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [collapsed, setCollapsed] = useState(true);
   const offline = useOffline();
+
+  useEffect(() => {
+    const saved = typeof window !== "undefined" ? window.localStorage.getItem("tradeVaultSidebarCollapsed") : null;
+    if (saved !== null) setCollapsed(saved === "true");
+  }, []);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem("tradeVaultSidebarCollapsed", String(collapsed));
+    }
+  }, [collapsed]);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
   useEffect(() => {
-    setOpen(false);
+    setMobileOpen(false);
   }, [pathname]);
 
   return (
     <div className="min-h-screen w-full">
       {/* Desktop sidebar */}
-      <aside className="fixed inset-y-0 left-0 z-40 hidden w-64 flex-col border-r border-sidebar-border bg-sidebar/80 backdrop-blur-xl lg:flex">
-        <Brand />
+      <aside
+        className={cn(
+          "fixed inset-y-0 left-0 z-40 hidden flex-col border-r border-sidebar-border bg-sidebar/80 backdrop-blur-xl transition-all duration-300 ease-out lg:flex",
+          collapsed ? "w-16" : "w-64",
+        )}
+      >
+        <Brand collapsed={collapsed} />
         <nav className="flex flex-1 flex-col gap-1 overflow-y-auto px-3 pb-6">
           {primaryNav.map((item) => (
-            <NavItem key={item.to} {...item} />
+            <NavItem key={item.to} {...item} collapsed={collapsed} />
           ))}
-          <p className="mt-6 px-3 text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/70">
-            Manage
-          </p>
+          {!collapsed && (
+            <p className="mt-6 px-3 text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/70">
+              Manage
+            </p>
+          )}
           {secondaryNav.map((item) => (
-            <NavItem key={item.to} {...item} />
+            <NavItem key={item.to} {...item} collapsed={collapsed} />
           ))}
         </nav>
-        <div className="px-5 pb-5 text-[11px] text-muted-foreground/70">
-          Local-only · v1.0.0
-        </div>
+        {!collapsed && (
+          <div className="px-5 pb-5 text-[11px] text-muted-foreground/70">
+            Local-only · v1.0.0
+          </div>
+        )}
       </aside>
 
       {/* Mobile slide-over */}
       <div
         className={cn(
           "fixed inset-0 z-50 lg:hidden",
-          open ? "pointer-events-auto" : "pointer-events-none",
+          mobileOpen ? "pointer-events-auto" : "pointer-events-none",
         )}
       >
         <div
-          onClick={() => setOpen(false)}
+          onClick={() => setMobileOpen(false)}
           className={cn(
             "absolute inset-0 bg-background/70 backdrop-blur-sm transition-opacity duration-300",
-            open ? "opacity-100" : "opacity-0",
+            mobileOpen ? "opacity-100" : "opacity-0",
           )}
         />
         <div
           className={cn(
             "absolute inset-y-0 left-0 flex w-72 flex-col border-r border-sidebar-border bg-sidebar transition-transform duration-300 ease-out",
-            open ? "translate-x-0" : "-translate-x-full",
+            mobileOpen ? "translate-x-0" : "-translate-x-full",
           )}
         >
           <div className="flex items-center justify-between pr-3">
             <Brand />
             <button
               aria-label="Close navigation"
-              onClick={() => setOpen(false)}
+              onClick={() => setMobileOpen(false)}
               className="rounded-lg p-2 text-muted-foreground hover:bg-sidebar-accent hover:text-foreground"
             >
               <X className="size-4" />
@@ -133,18 +162,25 @@ export function AppShell({ children }: { children: ReactNode }) {
           </div>
           <nav className="flex flex-1 flex-col gap-1 overflow-y-auto px-3 pb-6">
             {[...primaryNav, ...secondaryNav].map((item) => (
-              <NavItem key={item.to} {...item} onClick={() => setOpen(false)} />
+              <NavItem key={item.to} {...item} onClick={() => setMobileOpen(false)} />
             ))}
           </nav>
         </div>
       </div>
 
-      <div className="lg:pl-64">
+      <div className={cn("transition-all duration-300 ease-out", collapsed ? "lg:pl-16" : "lg:pl-64")}>
         <header className="sticky top-0 z-30 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b border-border bg-background/70 px-4 py-3 backdrop-blur-xl sm:px-6">
           <div className="flex min-w-0 items-center gap-3">
             <button
+              aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+              onClick={() => setCollapsed((v) => !v)}
+              className="hidden rounded-lg p-2 text-muted-foreground hover:bg-secondary hover:text-foreground lg:inline-flex"
+            >
+              <PanelLeft className={cn("size-5 transition-transform duration-300", collapsed && "rotate-180")} />
+            </button>
+            <button
               aria-label="Open navigation"
-              onClick={() => setOpen(true)}
+              onClick={() => setMobileOpen(true)}
               className="rounded-lg p-2 text-muted-foreground hover:bg-secondary hover:text-foreground lg:hidden"
             >
               <Menu className="size-5" />
@@ -201,16 +237,24 @@ export function AppShell({ children }: { children: ReactNode }) {
   );
 }
 
-function Brand() {
+function Brand({ collapsed }: { collapsed?: boolean }) {
   return (
-    <Link to="/" className="flex items-center gap-3 px-5 py-6">
+    <Link
+      to="/"
+      className={cn(
+        "flex items-center gap-3 px-5 py-6",
+        collapsed && "justify-center px-3",
+      )}
+    >
       <span className="grid size-10 shrink-0 place-items-center rounded-2xl bg-[var(--gradient-hero)] text-primary shadow-[var(--shadow-glow)]">
         <BarChart3 className="size-5" />
       </span>
-      <span className="min-w-0">
-        <span className="block truncate text-base font-bold tracking-tight">Trade Vault</span>
-        <span className="block text-[11px] text-muted-foreground">Offline trade journal</span>
-      </span>
+      {!collapsed && (
+        <span className="min-w-0">
+          <span className="block truncate text-base font-bold tracking-tight">Trade Vault</span>
+          <span className="block text-[11px] text-muted-foreground">Offline trade journal</span>
+        </span>
+      )}
     </Link>
   );
 }
