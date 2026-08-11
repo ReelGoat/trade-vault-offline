@@ -114,16 +114,6 @@ export function TradeForm({
   const set = <K extends keyof Trade>(key: K, value: Trade[K]) =>
     setForm((f) => ({ ...f, [key]: value }));
 
-  const calc = computePnl({
-    direction: form.direction,
-    entryPrice: form.entryPrice,
-    exitPrice: form.exitPrice,
-    quantity: form.quantity,
-    fees: form.fees,
-    riskAmount: form.riskAmount,
-    status: form.status,
-  });
-
   const warnings: string[] = [];
   if (form.status === "closed" && (!form.exitDate || form.exitPrice === undefined))
     warnings.push("Closed trades need both an exit date and an exit price.");
@@ -139,14 +129,13 @@ export function TradeForm({
       toast.error(warnings[0] ?? "Please complete the required fields");
       return;
     }
-    const positionSize = form.positionSize || Math.abs(form.entryPrice * form.quantity);
     const next: Trade = {
       ...form,
       symbol: form.symbol.trim().toUpperCase(),
-      positionSize,
-      grossPnl: calc.grossPnl,
-      netPnl: calc.netPnl,
-      rMultiple: calc.rMultiple,
+      positionSize: Math.abs(form.entryPrice * form.quantity),
+      grossPnl: form.status === "open" ? 0 : form.grossPnl,
+      netPnl: form.status === "open" ? 0 : form.netPnl,
+      rMultiple: form.status === "open" ? 0 : form.rMultiple,
       setupName: setups.find((s) => s.id === form.setupId)?.name,
       followedRules:
         form.ruleChecklist.length > 0
