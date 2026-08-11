@@ -32,6 +32,8 @@ export interface Trade {
   riskAmount: number;
   rewardAmount: number;
   rMultiple: number;
+  returnPercent?: number | undefined;
+  riskRewardRatio?: number | undefined;
   status: TradeStatus;
   strategy: string;
   setupId?: string | undefined;
