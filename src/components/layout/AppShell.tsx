@@ -81,8 +81,19 @@ function NavItem({
 
 export function AppShell({ children }: { children: ReactNode }) {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState(true);
   const offline = useOffline();
+
+  useEffect(() => {
+    const saved = typeof window !== "undefined" ? window.localStorage.getItem("tradeVaultSidebarCollapsed") : null;
+    if (saved !== null) setCollapsed(saved === "true");
+  }, []);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem("tradeVaultSidebarCollapsed", String(collapsed));
+    }
+  }, [collapsed]);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
   useEffect(() => {
