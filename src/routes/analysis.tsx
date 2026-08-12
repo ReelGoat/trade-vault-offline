@@ -88,6 +88,7 @@ function AnalysisPage() {
       if (tag && !t.tags.some((x) => x.toLowerCase().includes(tag.toLowerCase()))) return false;
       if (outcome === "win" && !(t.status === "closed" && t.netPnl > 0)) return false;
       if (outcome === "loss" && !(t.status === "closed" && t.netPnl < 0)) return false;
+      if (outcome === "breakeven" && !(t.status === "closed" && t.netPnl === 0)) return false;
       if (outcome === "open" && t.status !== "open") return false;
       if (ruleFilter === "followed" && !t.followedRules) return false;
       if (ruleFilter === "broke" && t.followedRules) return false;
@@ -177,6 +178,7 @@ function AnalysisPage() {
             <option value="">All</option>
             <option value="win">Wins</option>
             <option value="loss">Losses</option>
+            <option value="breakeven">Breakeven</option>
             <option value="open">Open</option>
           </Select>
         </Filter>
