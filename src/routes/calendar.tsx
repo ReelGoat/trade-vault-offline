@@ -80,7 +80,8 @@ function CalendarPage() {
 
   const dayTrades = selected
     ? trades.filter((t) => {
-        const d = t.status === "closed" ? safeDate(t.exitDate) : safeDate(t.entryDate);
+        const d =
+          t.status === "closed" ? (safeDate(t.exitDate) ?? safeDate(t.entryDate)) : safeDate(t.entryDate);
         return d ? isSameDay(d, selected) : false;
       })
     : [];
