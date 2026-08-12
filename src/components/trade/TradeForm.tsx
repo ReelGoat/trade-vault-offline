@@ -396,6 +396,7 @@ export function TradeForm({
                       : {
                           ...f,
                           status: "closed",
+                          exitDate: f.exitDate || new Date().toISOString(),
                           grossPnl: 0,
                           netPnl: 0,
                           rMultiple: 0,
