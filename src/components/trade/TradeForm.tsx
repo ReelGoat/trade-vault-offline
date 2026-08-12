@@ -110,6 +110,9 @@ export function TradeForm({
     }
   }, [activeRules.length]);
 
+  const isBreakEven =
+    form.status === "closed" && form.netPnl === 0 && form.grossPnl === 0;
+
   const set = <K extends keyof Trade>(key: K, value: Trade[K]) =>
     setForm((f) => ({ ...f, [key]: value }));
 
@@ -375,6 +378,40 @@ export function TradeForm({
                   }
                 />
               </Field>
+            </div>
+            <div className="flex items-center justify-between gap-3 rounded-xl border border-border bg-secondary/40 px-3 py-2.5">
+              <div className="min-w-0">
+                <p className="text-sm font-semibold">Break even</p>
+                <p className="text-[11px] text-muted-foreground">
+                  Marks the trade closed and zeroes P&L, R and return
+                </p>
+              </div>
+              <button
+                type="button"
+                aria-pressed={isBreakEven}
+                onClick={() =>
+                  setForm((f) =>
+                    isBreakEven
+                      ? f
+                      : {
+                          ...f,
+                          status: "closed",
+                          grossPnl: 0,
+                          netPnl: 0,
+                          rMultiple: 0,
+                          returnPercent: 0,
+                        },
+                  )
+                }
+                className={cn(
+                  "shrink-0 rounded-lg px-3 py-2 text-sm font-semibold transition-all duration-200",
+                  isBreakEven
+                    ? "bg-neutral/20 text-neutral"
+                    : "border border-border bg-background/40 text-muted-foreground hover:text-foreground",
+                )}
+              >
+                {isBreakEven ? "Break even" : "Set break even"}
+              </button>
             </div>
           </div>
 
