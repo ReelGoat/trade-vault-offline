@@ -57,7 +57,8 @@ function CalendarPage() {
   const byDay = useMemo(() => {
     const map = new Map<string, { pnl: number; closed: number; open: number }>();
     for (const t of trades) {
-      const d = t.status === "closed" ? safeDate(t.exitDate) : safeDate(t.entryDate);
+      const d =
+        t.status === "closed" ? (safeDate(t.exitDate) ?? safeDate(t.entryDate)) : safeDate(t.entryDate);
       if (!d) continue;
       const key = format(d, "yyyy-MM-dd");
       const prev = map.get(key) ?? { pnl: 0, closed: 0, open: 0 };
