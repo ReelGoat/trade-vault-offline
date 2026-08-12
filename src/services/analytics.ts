@@ -166,8 +166,40 @@ export interface GroupStat {
   trades: number;
   netPnl: number;
   wins: number;
+  losses: number;
+  breakeven: number;
   winRate: number;
+  lossRate: number;
+  avgWin: number;
+  avgLoss: number;
+  grossProfit: number;
+  grossLoss: number;
+  profitFactor: number;
   avgR: number;
+}
+
+export function buildGroupStat(list: Trade[], key: string): GroupStat {
+  const winners = list.filter((t) => t.netPnl > 0);
+  const losers = list.filter((t) => t.netPnl < 0);
+  const flat = list.filter((t) => t.netPnl === 0);
+  const grossProfit = winners.reduce((s, t) => s + t.netPnl, 0);
+  const grossLoss = Math.abs(losers.reduce((s, t) => s + t.netPnl, 0));
+  return {
+    key,
+    trades: list.length,
+    netPnl: list.reduce((s, t) => s + t.netPnl, 0),
+    wins: winners.length,
+    losses: losers.length,
+    breakeven: flat.length,
+    winRate: list.length ? (winners.length / list.length) * 100 : 0,
+    lossRate: list.length ? (losers.length / list.length) * 100 : 0,
+    avgWin: winners.length ? grossProfit / winners.length : 0,
+    avgLoss: losers.length ? grossLoss / losers.length : 0,
+    grossProfit,
+    grossLoss,
+    profitFactor: grossLoss > 0 ? grossProfit / grossLoss : grossProfit > 0 ? Infinity : 0,
+    avgR: list.reduce((s, t) => s + (t.rMultiple || 0), 0) / (list.length || 1),
+  };
 }
 
 export function groupBy(all: Trade[], selector: (t: Trade) => string | string[]): GroupStat[] {
@@ -180,17 +212,7 @@ export function groupBy(all: Trade[], selector: (t: Trade) => string | string[])
     }
   }
   return [...map.entries()]
-    .map(([key, list]) => {
-      const wins = list.filter((t) => t.netPnl > 0).length;
-      return {
-        key,
-        trades: list.length,
-        netPnl: list.reduce((s, t) => s + t.netPnl, 0),
-        wins,
-        winRate: list.length ? (wins / list.length) * 100 : 0,
-        avgR: list.reduce((s, t) => s + (t.rMultiple || 0), 0) / (list.length || 1),
-      };
-    })
+    .map(([key, list]) => buildGroupStat(list, key))
     .sort((a, b) => b.netPnl - a.netPnl);
 }
 
@@ -228,17 +250,7 @@ export function byHourOfDay(all: Trade[]) {
 
 export function ruleComplianceStats(all: Trade[]) {
   const closed = closedTrades(all);
-  const build = (list: Trade[], key: string): GroupStat => {
-    const wins = list.filter((t) => t.netPnl > 0).length;
-    return {
-      key,
-      trades: list.length,
-      netPnl: list.reduce((s, t) => s + t.netPnl, 0),
-      wins,
-      winRate: list.length ? (wins / list.length) * 100 : 0,
-      avgR: list.reduce((s, t) => s + (t.rMultiple || 0), 0) / (list.length || 1),
-    };
-  };
+  const build = buildGroupStat;
   return [
     build(closed.filter((t) => t.followedRules), "Followed rules"),
     build(closed.filter((t) => !t.followedRules), "Broke rules"),

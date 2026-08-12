@@ -88,6 +88,7 @@ function AnalysisPage() {
       if (tag && !t.tags.some((x) => x.toLowerCase().includes(tag.toLowerCase()))) return false;
       if (outcome === "win" && !(t.status === "closed" && t.netPnl > 0)) return false;
       if (outcome === "loss" && !(t.status === "closed" && t.netPnl < 0)) return false;
+      if (outcome === "breakeven" && !(t.status === "closed" && t.netPnl === 0)) return false;
       if (outcome === "open" && t.status !== "open") return false;
       if (ruleFilter === "followed" && !t.followedRules) return false;
       if (ruleFilter === "broke" && t.followedRules) return false;
@@ -177,6 +178,7 @@ function AnalysisPage() {
             <option value="">All</option>
             <option value="win">Wins</option>
             <option value="loss">Losses</option>
+            <option value="breakeven">Breakeven</option>
             <option value="open">Open</option>
           </Select>
         </Filter>
@@ -427,7 +429,13 @@ function StatTable({ title, rows, currency }: { title: string; rows: GroupStat[]
               <tr className="text-left text-[11px] uppercase tracking-wider text-muted-foreground">
                 <th className="px-5 py-2 font-semibold">Name</th>
                 <th className="px-3 py-2 text-right font-semibold">Trades</th>
+                <th className="px-3 py-2 text-right font-semibold">W / L / BE</th>
                 <th className="px-3 py-2 text-right font-semibold">Win %</th>
+                <th className="px-3 py-2 text-right font-semibold">Loss %</th>
+                <th className="px-3 py-2 text-right font-semibold">Avg win</th>
+                <th className="px-3 py-2 text-right font-semibold">Avg loss</th>
+                <th className="px-3 py-2 text-right font-semibold">Gross loss</th>
+                <th className="px-3 py-2 text-right font-semibold">PF</th>
                 <th className="px-3 py-2 text-right font-semibold">Avg R</th>
                 <th className="px-5 py-2 text-right font-semibold">Net P&L</th>
               </tr>
@@ -437,8 +445,21 @@ function StatTable({ title, rows, currency }: { title: string; rows: GroupStat[]
                 <tr key={r.key}>
                   <td className="max-w-[160px] truncate px-5 py-2.5 font-medium">{r.key}</td>
                   <td className="num px-3 py-2.5 text-right text-muted-foreground">{r.trades}</td>
-                  <td className="num px-3 py-2.5 text-right text-muted-foreground">{formatPercent(r.winRate, 0)}</td>
-                  <td className="num px-3 py-2.5 text-right text-muted-foreground">{formatNumber(r.avgR, 2)}</td>
+                  <td className="num px-3 py-2.5 text-right">
+                    <span className="text-profit">{r.wins}</span>
+                    <span className="text-muted-foreground"> / </span>
+                    <span className="text-loss">{r.losses}</span>
+                    <span className="text-muted-foreground"> / {r.breakeven}</span>
+                  </td>
+                  <td className="num px-3 py-2.5 text-right text-profit">{formatPercent(r.winRate, 0)}</td>
+                  <td className="num px-3 py-2.5 text-right text-loss">{formatPercent(r.lossRate, 0)}</td>
+                  <td className="num px-3 py-2.5 text-right text-muted-foreground">{formatCurrency(r.avgWin, currency)}</td>
+                  <td className="num px-3 py-2.5 text-right text-muted-foreground">{formatCurrency(r.avgLoss, currency)}</td>
+                  <td className="num px-3 py-2.5 text-right text-muted-foreground">{formatCurrency(r.grossLoss, currency)}</td>
+                  <td className="num px-3 py-2.5 text-right text-muted-foreground">
+                    {r.profitFactor === Infinity ? "∞" : formatNumber(r.profitFactor, 2)}
+                  </td>
+                  <td className={cn("num px-3 py-2.5 text-right", pnlClass(r.avgR))}>{formatNumber(r.avgR, 2)}</td>
                   <td className={cn("num px-5 py-2.5 text-right font-semibold", pnlClass(r.netPnl))}>
                     {formatSigned(r.netPnl, currency)}
                   </td>
