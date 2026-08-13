@@ -117,8 +117,10 @@ export function TradeForm({
     setForm((f) => ({ ...f, [key]: value }));
 
   const warnings: string[] = [];
-  if (form.status === "closed" && (!form.exitDate || form.exitPrice === undefined))
+  if (form.status === "closed" && !isBreakEven && (!form.exitDate || form.exitPrice === undefined))
     warnings.push("Closed trades need both an exit date and an exit price.");
+  if (form.status === "closed" && isBreakEven && !form.exitDate)
+    warnings.push("Break-even trades need an exit date.");
   if (form.exitDate && new Date(form.exitDate) < new Date(form.entryDate))
     warnings.push("Exit date is before the entry date.");
   if (!form.symbol.trim()) warnings.push("Symbol is required.");
