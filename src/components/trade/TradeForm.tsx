@@ -393,8 +393,8 @@ export function TradeForm({
                 aria-pressed={isBreakEven}
                 onClick={() =>
                   setForm((f) =>
-                    isBreakEven
-                      ? f
+                    f.status === "closed" && f.netPnl === 0 && f.grossPnl === 0
+                      ? { ...f, status: "open" }
                       : {
                           ...f,
                           status: "closed",
@@ -403,6 +403,7 @@ export function TradeForm({
                           netPnl: 0,
                           rMultiple: 0,
                           returnPercent: 0,
+                          riskRewardRatio: 0,
                         },
                   )
                 }
