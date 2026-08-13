@@ -79,8 +79,13 @@ function Dashboard() {
   }, [trades]);
 
   const days = [...daily.entries()].sort((a, b) => b[1].pnl - a[1].pnl);
-  const bestDay = days[0];
-  const worstDay = days[days.length - 1];
+  const bestDay = days.length ? days[0] : undefined;
+  const losingDays = days.filter(([, v]) => v.pnl < 0);
+  const worstDay = losingDays.length
+    ? losingDays[losingDays.length - 1]
+    : days.length
+      ? days[days.length - 1]
+      : undefined;
   const recent = [...trades]
     .sort((a, b) => (safeDate(b.entryDate)?.getTime() ?? 0) - (safeDate(a.entryDate)?.getTime() ?? 0))
     .slice(0, 6);
@@ -156,8 +161,12 @@ function Dashboard() {
         />
         <StatCard
           label="Worst day"
-          value={worstDay && worstDay[1].pnl < 0 ? formatSigned(worstDay[1].pnl, c) : "—"}
-          hint={worstDay ? formatDate(worstDay[0]) : "No data"}
+          value={worstDay ? formatSigned(worstDay[1].pnl, c) : "—"}
+          hint={
+            worstDay
+              ? `${formatDate(worstDay[0])} · ${worstDay[1].count} trade${worstDay[1].count === 1 ? "" : "s"}`
+              : "No data"
+          }
           tone="loss"
           icon={ArrowDownRight}
         />
