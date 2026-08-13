@@ -79,8 +79,13 @@ function Dashboard() {
   }, [trades]);
 
   const days = [...daily.entries()].sort((a, b) => b[1].pnl - a[1].pnl);
-  const bestDay = days[0];
-  const worstDay = days[days.length - 1];
+  const bestDay = days.length ? days[0] : undefined;
+  const losingDays = days.filter(([, v]) => v.pnl < 0);
+  const worstDay = losingDays.length
+    ? losingDays[losingDays.length - 1]
+    : days.length
+      ? days[days.length - 1]
+      : undefined;
   const recent = [...trades]
     .sort((a, b) => (safeDate(b.entryDate)?.getTime() ?? 0) - (safeDate(a.entryDate)?.getTime() ?? 0))
     .slice(0, 6);
