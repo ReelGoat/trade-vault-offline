@@ -161,8 +161,12 @@ function Dashboard() {
         />
         <StatCard
           label="Worst day"
-          value={worstDay && worstDay[1].pnl < 0 ? formatSigned(worstDay[1].pnl, c) : "—"}
-          hint={worstDay ? formatDate(worstDay[0]) : "No data"}
+          value={worstDay ? formatSigned(worstDay[1].pnl, c) : "—"}
+          hint={
+            worstDay
+              ? `${formatDate(worstDay[0])} · ${worstDay[1].count} trade${worstDay[1].count === 1 ? "" : "s"}`
+              : "No data"
+          }
           tone="loss"
           icon={ArrowDownRight}
         />
