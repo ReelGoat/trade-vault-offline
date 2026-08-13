@@ -161,7 +161,9 @@ function Dashboard() {
           hint={
             worstDay
               ? `${formatDate(worstDay[0])} · ${worstDay[1].count} trade${worstDay[1].count === 1 ? "" : "s"}`
-              : "No data"
+              : days.length
+                ? "No losing days"
+                : "No data"
           }
           tone="loss"
           icon={ArrowDownRight}
