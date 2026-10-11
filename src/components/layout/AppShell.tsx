@@ -15,6 +15,9 @@ import {
 } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
+import { SyncStatusBadge } from "@/components/sync/SyncStatusBadge";
+import { useGithubSyncBoot } from "@/hooks/use-github-sync-boot";
+import { useVaultBoot } from "@/hooks/use-vault-boot";
 
 const primaryNav = [
   { to: "/", label: "Dashboard", icon: LayoutDashboard, exact: true },
@@ -83,6 +86,8 @@ export function AppShell({ children }: { children: ReactNode }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(true);
   const offline = useOffline();
+  useVaultBoot();
+  useGithubSyncBoot();
 
   useEffect(() => {
     const saved = typeof window !== "undefined" ? window.localStorage.getItem("tradeVaultSidebarCollapsed") : null;
@@ -192,6 +197,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             </span>
           </div>
           <div className="flex shrink-0 items-center gap-2">
+            <Link to="/settings" aria-label="GitHub sync status"><SyncStatusBadge compact /></Link>
             {offline && (
               <span className="flex items-center gap-1.5 rounded-full border border-border bg-secondary px-2.5 py-1 text-[11px] text-muted-foreground">
                 <WifiOff className="size-3" /> Offline ready

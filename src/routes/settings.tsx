@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { GithubSyncPanel } from "@/components/sync/GithubSyncPanel";
 
 export const Route = createFileRoute("/settings")({
   head: () => ({
@@ -124,12 +125,14 @@ function SettingsPage() {
         </div>
       </div>
 
+      <GithubSyncPanel />
+
       <div className="panel space-y-2 p-5 text-sm text-muted-foreground">
         <p className="text-sm font-semibold text-foreground">App info</p>
         <p>Trade Vault v1.0.0 · local-only journal</p>
         <p>Platform: {getPlatform()} {isStandalone() ? "(installed)" : ""}</p>
         <p>File System Access API: {supportsFileSystemAccess() ? "available" : "not supported — downloads used instead"}</p>
-        <p>No account, no cloud sync, no telemetry. Your data never leaves this device.</p>
+        <p>No account or telemetry. Data stays on this device unless you enable GitHub Sync.</p>
       </div>
     </div>
   );

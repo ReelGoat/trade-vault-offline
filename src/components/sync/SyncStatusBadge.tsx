@@ -3,10 +3,10 @@ import { useSyncStatus } from "@/services/github-sync";
 import { cn } from "@/lib/utils";
 
 const MAP = {
-  synced: { label: "Synced", icon: CheckCircle2, cls: "text-success" },
+  synced: { label: "Synced", icon: CheckCircle2, cls: "text-profit" },
   syncing: { label: "Syncing...", icon: Loader2, cls: "text-primary" },
-  dirty: { label: "Unsaved Local Changes", icon: CloudOff, cls: "text-warning" },
-  error: { label: "Error / Invalid Token", icon: AlertTriangle, cls: "text-destructive" },
+  dirty: { label: "Unsaved Local Changes", icon: CloudOff, cls: "text-neutral" },
+  error: { label: "Error / Invalid Token", icon: AlertTriangle, cls: "text-loss" },
   idle: { label: "Not synced", icon: Github, cls: "text-muted-foreground" },
 } as const;
 
