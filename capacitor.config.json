@@ -1,0 +1,5 @@
+{
+  "appId": "com.reelgoat.tradevault",
+  "appName": "Trade Vault",
+  "webDir": "dist/client"
+}
