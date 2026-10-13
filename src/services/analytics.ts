@@ -123,15 +123,17 @@ export function computeKpis(all: Trade[]): Kpis {
 }
 
 export function equityCurve(all: Trade[], startingBalance: number) {
+  const dateOf = (t: Trade) => safeDate(t.exitDate) ?? safeDate(t.entryDate);
   const closed = closedTrades(all).sort(
-    (a, b) => (safeDate(a.exitDate)?.getTime() ?? 0) - (safeDate(b.exitDate)?.getTime() ?? 0),
+    (a, b) => (dateOf(a)?.getTime() ?? 0) - (dateOf(b)?.getTime() ?? 0),
   );
   let equity = startingBalance;
-  const points = [{ label: "Start", equity, index: 0 }];
+  const points = [{ label: "Start", equity, pnl: 0, index: 0 }];
   closed.forEach((t, i) => {
-    equity += t.netPnl;
-    const d = safeDate(t.exitDate);
-    points.push({ label: d ? format(d, "dd MMM") : `#${i + 1}`, equity, index: i + 1 });
+    const pnl = Number(t.netPnl) || 0;
+    equity += pnl;
+    const d = dateOf(t);
+    points.push({ label: d ? format(d, "dd MMM") : `#${i + 1}`, equity, pnl, index: i + 1 });
   });
   return points;
 }

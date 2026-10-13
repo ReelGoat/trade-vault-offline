@@ -85,7 +85,7 @@ function Dashboard() {
   }, [trades]);
 
   const days = [...daily.entries()].sort((a, b) => b[1].pnl - a[1].pnl);
-  const bestDay = days.length ? days[0] : undefined;
+  const bestDay = days.length && days[0]![1].pnl > 0 ? days[0] : undefined;
   const losingDays = days.filter(([, v]) => v.pnl < 0);
   const worstDay = losingDays.length ? losingDays[losingDays.length - 1] : undefined;
   const recent = [...trades]
@@ -157,7 +157,13 @@ function Dashboard() {
         <StatCard
           label="Best day"
           value={bestDay ? formatSigned(bestDay[1].pnl, c) : "—"}
-          hint={bestDay ? formatDate(bestDay[0]) : "No data"}
+          hint={
+            bestDay
+              ? `${formatDate(bestDay[0])} · ${bestDay[1].count} trade${bestDay[1].count === 1 ? "" : "s"}`
+              : days.length
+                ? "No winning days"
+                : "No data"
+          }
           tone="profit"
           icon={ArrowUpRight}
         />
@@ -193,7 +199,7 @@ function Dashboard() {
                   </linearGradient>
                 </defs>
                 <XAxis dataKey="label" tick={{ fontSize: 11, fill: "var(--color-muted-foreground)" }} tickLine={false} axisLine={false} />
-                <YAxis tick={{ fontSize: 11, fill: "var(--color-muted-foreground)" }} tickLine={false} axisLine={false} width={60} />
+                <YAxis tick={{ fontSize: 11, fill: "var(--color-muted-foreground)" }} tickLine={false} axisLine={false} width={70} domain={["auto", "auto"]} tickFormatter={(v: number) => formatNumber(v, 0)} />
                 <Tooltip
                   contentStyle={{
                     background: "var(--color-popover)",
@@ -201,7 +207,10 @@ function Dashboard() {
                     borderRadius: 12,
                     fontSize: 12,
                   }}
-                  formatter={(v: number) => formatCurrency(v, c)}
+                  formatter={(v: number, _n, item) => [
+                    `${formatCurrency(v, c)} (${formatSigned((item?.payload as { pnl?: number })?.pnl ?? 0, c)})`,
+                    "Balance",
+                  ]}
                 />
                 <Area type="monotone" dataKey="equity" stroke="var(--color-primary)" strokeWidth={2} fill="url(#eq)" />
               </AreaChart>
