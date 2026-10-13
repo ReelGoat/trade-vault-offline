@@ -142,7 +142,7 @@ export function GithubSyncPanel() {
       <p className="text-[11px] text-muted-foreground">
         {status === "error" && message ? `${message} · ` : ""}
         Last synced: {lastSyncedAt ? new Date(lastSyncedAt).toLocaleString() : "never"} · Pull and push merge by
-        record — the most recently edited version of each trade wins, nothing is deleted.
+        record — the most recently edited version of each trade wins, deleted trades are removed everywhere on the next sync.
       </p>
 
       <details className="rounded-xl border border-border bg-secondary/30 p-4 text-sm">

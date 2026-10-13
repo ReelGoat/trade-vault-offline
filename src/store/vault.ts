@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { storage, uid } from "@/services/storage";
 import { defaultSettings } from "@/services/db";
+import { recordDeletion } from "@/services/tombstones";
 import type { AppSettings, Rule, Setup, Trade } from "@/services/types";
 
 interface VaultState {
@@ -54,6 +55,7 @@ export const useVault = create<VaultState>((set, get) => ({
   },
   removeTrade: async (id) => {
     await storage.deleteTrade(id);
+    recordDeletion(id);
     set({ trades: get().trades.filter((t) => t.id !== id) });
   },
   duplicateTrade: async (id) => {
@@ -70,6 +72,7 @@ export const useVault = create<VaultState>((set, get) => ({
   },
   removeSetup: async (id) => {
     await storage.deleteSetup(id);
+    recordDeletion(id);
     set({ setups: get().setups.filter((s) => s.id !== id) });
   },
 
@@ -79,6 +82,7 @@ export const useVault = create<VaultState>((set, get) => ({
   },
   removeRule: async (id) => {
     await storage.deleteRule(id);
+    recordDeletion(id);
     set({ rules: get().rules.filter((r) => r.id !== id) });
   },
 
