@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { buildBackup, validateBackup } from "./backup";
 import { storage } from "./storage";
 import type { BackupPayload } from "./types";
+import { loadTombstones, mergeTombstones, saveTombstones } from "./tombstones";
 
 /**
  * Optional GitHub sync. The local IndexedDB stays the source of truth;
@@ -87,6 +88,23 @@ export function markLocalChange() {
   const s = useSyncStatus.getState();
   if (s.status === "syncing") return;
   s.set({ status: "dirty", pendingPush: true, message: "Local changes not yet pushed" });
+  scheduleAutoPush();
+}
+
+let pushTimer: ReturnType<typeof setTimeout> | null = null;
+/** Push edits/deletes to GitHub shortly after they happen (when online). */
+function scheduleAutoPush() {
+  if (typeof window === "undefined") return;
+  if (pushTimer) clearTimeout(pushTimer);
+  pushTimer = setTimeout(() => {
+    pushTimer = null;
+    const cfg = loadSyncConfig();
+    if (!cfg.token || !navigator.onLine) return;
+    if (useSyncStatus.getState().status === "syncing") return scheduleAutoPush();
+    void pushToGithub(cfg)
+      .then(() => import("@/store/vault").then((m) => m.useVault.getState().load()))
+      .catch(() => {});
+  }, 2500);
 }
 
 // ---------- GitHub helpers ----------
@@ -183,7 +201,16 @@ export function mergeById<T extends { id: string; updatedAt?: string }>(local: T
   return [...map.values()];
 }
 
+/** Drop records deleted after their last edit. */
+export function applyTombstones<T extends { id: string; updatedAt?: string }>(list: T[], deleted: Record<string, string>): T[] {
+  return list.filter((r) => {
+    const d = deleted[r.id];
+    return !d || (r.updatedAt ?? "") > d;
+  });
+}
+
 function mergePayloads(local: BackupPayload, remote: BackupPayload): BackupPayload {
+  const deleted = mergeTombstones(local.deleted ?? {}, remote.deleted ?? {});
   const settings =
     !remote.settings || (local.settings && local.settings.updatedAt >= remote.settings.updatedAt)
       ? local.settings
@@ -191,9 +218,10 @@ function mergePayloads(local: BackupPayload, remote: BackupPayload): BackupPaylo
   return {
     ...local,
     settings,
-    trades: mergeById(local.trades, remote.trades),
-    setups: mergeById(local.setups, remote.setups),
-    rules: mergeById(local.rules, remote.rules),
+    deleted,
+    trades: applyTombstones(mergeById(local.trades, remote.trades), deleted),
+    setups: applyTombstones(mergeById(local.setups, remote.setups), deleted),
+    rules: applyTombstones(mergeById(local.rules, remote.rules), deleted),
   };
 }
 
@@ -230,10 +258,11 @@ export async function pushToGithub(cfg = loadSyncConfig()) {
     const fullRepo = await resolveRepo(cfg);
     await ensureRepo(cfg, fullRepo);
     const remote = await getRemote(cfg, fullRepo);
-    const local = await buildBackup();
+    const local = { ...(await buildBackup()), deleted: loadTombstones() };
     // merge first so another device's changes are never overwritten
     const merged = remote ? mergePayloads(local, remote.payload) : local;
     if (remote) await storage.replaceAll(merged);
+    saveTombstones(merged.deleted ?? {});
     await gh(cfg.token, contentsPath(fullRepo, cfg.path), {
       method: "PUT",
       body: JSON.stringify({
@@ -252,8 +281,9 @@ export async function pullFromGithub(cfg = loadSyncConfig()) {
     const fullRepo = await resolveRepo(cfg);
     const remote = await getRemote(cfg, fullRepo);
     if (!remote) throw new Error(`No sync file found at ${fullRepo}/${cfg.path}. Push first.`);
-    const merged = mergePayloads(await buildBackup(), remote.payload);
+    const merged = mergePayloads({ ...(await buildBackup()), deleted: loadTombstones() }, remote.payload);
     await storage.replaceAll(merged);
+    saveTombstones(merged.deleted ?? {});
     return { repo: fullRepo, trades: merged.trades.length };
   });
 }

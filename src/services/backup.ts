@@ -52,6 +52,7 @@ export function validateBackup(raw: unknown): BackupPayload {
     trades: data.trades,
     setups: data.setups,
     rules: data.rules,
+    ...(data.deleted && typeof data.deleted === "object" ? { deleted: data.deleted } : {}),
   };
 }
 

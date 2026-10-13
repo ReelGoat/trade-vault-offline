@@ -93,4 +93,6 @@ export interface BackupPayload {
   trades: Trade[];
   setups: Setup[];
   rules: Rule[];
+  /** Tombstones: record id -> ISO time it was deleted (used by sync). */
+  deleted?: Record<string, string>;
 }

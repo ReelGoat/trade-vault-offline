@@ -62,7 +62,8 @@ export const Route = createFileRoute("/")({
 
 function Dashboard() {
   const hydrated = useVaultBoot();
-  const { trades, settings } = useVault();
+  const { trades, settings, removeTrade } = useVault();
+  const [editing, setEditing] = useState<Trade | null>(null);
 
   const kpis = useMemo(() => computeKpis(trades), [trades]);
   const curve = useMemo(
@@ -296,6 +297,7 @@ function Dashboard() {
           </div>
         )}
       </section>
+      <TradeDrawer trade={editing} open={Boolean(editing)} onOpenChange={(o) => !o && setEditing(null)} />
     </div>
   );
 }
