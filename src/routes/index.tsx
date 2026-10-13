@@ -11,8 +11,13 @@ import {
   Sparkles,
   ArrowUpRight,
   ArrowDownRight,
+  Pencil,
+  Trash2,
 } from "lucide-react";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
+import { toast } from "sonner";
+import { TradeDrawer } from "@/components/trade/TradeDrawer";
+import type { Trade } from "@/services/types";
 import {
   Area,
   AreaChart,
@@ -248,7 +253,8 @@ function Dashboard() {
                     </p>
                   </div>
                 </div>
-                <div className="shrink-0 text-right">
+                <div className="flex shrink-0 items-center gap-3">
+                <div className="text-right">
                   {t.status === "open" ? (
                     <span className="rounded-full bg-primary/15 px-2.5 py-1 text-[11px] font-semibold text-primary">
                       Open
@@ -263,6 +269,27 @@ function Dashboard() {
                       </p>
                     </>
                   )}
+                </div>
+                <div className="flex items-center gap-1">
+                  <button
+                    aria-label={`Edit ${t.symbol}`}
+                    onClick={() => setEditing(t)}
+                    className="grid size-8 place-items-center rounded-lg text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+                  >
+                    <Pencil className="size-4" />
+                  </button>
+                  <button
+                    aria-label={`Delete ${t.symbol}`}
+                    onClick={async () => {
+                      if (!window.confirm(`Delete ${t.symbol} trade? This cannot be undone.`)) return;
+                      await removeTrade(t.id);
+                      toast.success("Trade deleted");
+                    }}
+                    className="grid size-8 place-items-center rounded-lg text-muted-foreground transition-colors hover:bg-loss/15 hover:text-loss"
+                  >
+                    <Trash2 className="size-4" />
+                  </button>
+                </div>
                 </div>
               </div>
             ))}
