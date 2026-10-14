@@ -5,8 +5,8 @@ import {
   BarChart,
   CartesianGrid,
   Cell,
-  Line,
-  LineChart,
+  Area,
+  AreaChart,
   Pie,
   PieChart,
   ResponsiveContainer,
@@ -229,14 +229,26 @@ function AnalysisPage() {
       </div>
 
       <div className="grid gap-4 xl:grid-cols-2">
-        <ChartCard title="Equity curve">
-          <LineChart data={curve}>
-            <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
-            <XAxis dataKey="label" tick={{ fontSize: 11, fill: "var(--color-muted-foreground)" }} axisLine={false} tickLine={false} />
-            <YAxis tick={{ fontSize: 11, fill: "var(--color-muted-foreground)" }} axisLine={false} tickLine={false} width={60} />
-            <Tooltip {...chartStyle} formatter={(v: number) => formatCurrency(v, c)} />
-            <Line type="monotone" dataKey="equity" stroke="var(--color-primary)" strokeWidth={2} dot={false} />
-          </LineChart>
+        <ChartCard title="Equity curve" subtitle="Balance after each closed trade" wide tall>
+          <AreaChart data={curve} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+            <defs>
+              <linearGradient id="anEq" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="var(--color-primary)" stopOpacity={0.5} />
+                <stop offset="100%" stopColor="var(--color-primary)" stopOpacity={0} />
+              </linearGradient>
+            </defs>
+            <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" vertical={false} />
+            <XAxis dataKey="label" tick={{ fontSize: 11, fill: "var(--color-muted-foreground)" }} axisLine={false} tickLine={false} minTickGap={24} />
+            <YAxis domain={["auto", "auto"]} tickFormatter={(v: number) => formatNumber(v, 0)} tick={{ fontSize: 11, fill: "var(--color-muted-foreground)" }} axisLine={false} tickLine={false} width={70} />
+            <Tooltip
+              {...chartStyle}
+              formatter={(v: number, _n, item) => [
+                `${formatCurrency(v, c)} (${formatSigned((item?.payload as { pnl?: number })?.pnl ?? 0, c)})`,
+                "Balance",
+              ]}
+            />
+            <Area type="monotone" dataKey="equity" stroke="var(--color-primary)" strokeWidth={2.5} fill="url(#anEq)" activeDot={{ r: 5 }} animationDuration={500} />
+          </AreaChart>
         </ChartCard>
 
         <ChartCard title="Daily net P&L">
@@ -245,7 +257,7 @@ function AnalysisPage() {
             <XAxis dataKey="label" tick={{ fontSize: 11, fill: "var(--color-muted-foreground)" }} axisLine={false} tickLine={false} />
             <YAxis tick={{ fontSize: 11, fill: "var(--color-muted-foreground)" }} axisLine={false} tickLine={false} width={60} />
             <Tooltip {...chartStyle} formatter={(v: number) => formatCurrency(v, c)} />
-            <Bar dataKey="pnl" radius={[6, 6, 0, 0]}>
+            <Bar dataKey="pnl" radius={[6, 6, 0, 0]} animationDuration={400}>
               {daily.map((d, i) => (
                 <Cell key={i} fill={d.pnl >= 0 ? "var(--color-profit)" : "var(--color-loss)"} />
               ))}
@@ -259,7 +271,7 @@ function AnalysisPage() {
             <XAxis dataKey="label" tick={{ fontSize: 11, fill: "var(--color-muted-foreground)" }} axisLine={false} tickLine={false} />
             <YAxis tick={{ fontSize: 11, fill: "var(--color-muted-foreground)" }} axisLine={false} tickLine={false} width={60} />
             <Tooltip {...chartStyle} formatter={(v: number) => formatCurrency(v, c)} />
-            <Bar dataKey="pnl" radius={[6, 6, 0, 0]}>
+            <Bar dataKey="pnl" radius={[6, 6, 0, 0]} animationDuration={400}>
               {monthly.map((d, i) => (
                 <Cell key={i} fill={d.pnl >= 0 ? "var(--color-profit)" : "var(--color-loss)"} />
               ))}
@@ -284,7 +296,7 @@ function AnalysisPage() {
             <XAxis dataKey="label" tick={{ fontSize: 11, fill: "var(--color-muted-foreground)" }} axisLine={false} tickLine={false} />
             <YAxis tick={{ fontSize: 11, fill: "var(--color-muted-foreground)" }} axisLine={false} tickLine={false} width={60} />
             <Tooltip {...chartStyle} formatter={(v: number) => formatCurrency(v, c)} />
-            <Bar dataKey="pnl" radius={[6, 6, 0, 0]}>
+            <Bar dataKey="pnl" radius={[6, 6, 0, 0]} animationDuration={400}>
               {dow.map((d, i) => (
                 <Cell key={i} fill={d.pnl >= 0 ? "var(--color-profit)" : "var(--color-loss)"} />
               ))}
@@ -298,7 +310,7 @@ function AnalysisPage() {
             <XAxis dataKey="label" tick={{ fontSize: 11, fill: "var(--color-muted-foreground)" }} axisLine={false} tickLine={false} />
             <YAxis tick={{ fontSize: 11, fill: "var(--color-muted-foreground)" }} axisLine={false} tickLine={false} width={60} />
             <Tooltip {...chartStyle} formatter={(v: number) => formatCurrency(v, c)} />
-            <Bar dataKey="pnl" radius={[6, 6, 0, 0]}>
+            <Bar dataKey="pnl" radius={[6, 6, 0, 0]} animationDuration={400}>
               {hours.map((d, i) => (
                 <Cell key={i} fill={d.pnl >= 0 ? "var(--color-profit)" : "var(--color-loss)"} />
               ))}
@@ -312,7 +324,7 @@ function AnalysisPage() {
             <XAxis dataKey="label" tick={{ fontSize: 11, fill: "var(--color-muted-foreground)" }} axisLine={false} tickLine={false} />
             <YAxis tick={{ fontSize: 11, fill: "var(--color-muted-foreground)" }} axisLine={false} tickLine={false} width={60} />
             <Tooltip {...chartStyle} formatter={(v: number) => formatCurrency(v, c)} />
-            <Bar dataKey="pnl" radius={[6, 6, 0, 0]}>
+            <Bar dataKey="pnl" radius={[6, 6, 0, 0]} animationDuration={400}>
               {bySymbol.map((g, i) => (
                 <Cell key={i} fill={g.netPnl >= 0 ? "var(--color-profit)" : "var(--color-loss)"} />
               ))}
@@ -326,7 +338,7 @@ function AnalysisPage() {
             <XAxis dataKey="label" tick={{ fontSize: 11, fill: "var(--color-muted-foreground)" }} axisLine={false} tickLine={false} />
             <YAxis tick={{ fontSize: 11, fill: "var(--color-muted-foreground)" }} axisLine={false} tickLine={false} width={60} />
             <Tooltip {...chartStyle} formatter={(v: number) => formatCurrency(v, c)} />
-            <Bar dataKey="pnl" radius={[6, 6, 0, 0]}>
+            <Bar dataKey="pnl" radius={[6, 6, 0, 0]} animationDuration={400}>
               {bySetup.map((g, i) => (
                 <Cell key={i} fill={g.netPnl >= 0 ? "var(--color-profit)" : "var(--color-loss)"} />
               ))}
@@ -340,7 +352,7 @@ function AnalysisPage() {
             <XAxis dataKey="label" tick={{ fontSize: 11, fill: "var(--color-muted-foreground)" }} axisLine={false} tickLine={false} />
             <YAxis tick={{ fontSize: 11, fill: "var(--color-muted-foreground)" }} axisLine={false} tickLine={false} width={60} />
             <Tooltip {...chartStyle} formatter={(v: number) => formatCurrency(v, c)} />
-            <Bar dataKey="pnl" radius={[6, 6, 0, 0]}>
+            <Bar dataKey="pnl" radius={[6, 6, 0, 0]} animationDuration={400}>
               {byStrategy.map((g, i) => (
                 <Cell key={i} fill={g.netPnl >= 0 ? "var(--color-profit)" : "var(--color-loss)"} />
               ))}
@@ -354,7 +366,7 @@ function AnalysisPage() {
             <XAxis dataKey="label" tick={{ fontSize: 11, fill: "var(--color-muted-foreground)" }} axisLine={false} tickLine={false} />
             <YAxis tick={{ fontSize: 11, fill: "var(--color-muted-foreground)" }} axisLine={false} tickLine={false} width={60} />
             <Tooltip {...chartStyle} formatter={(v: number) => formatCurrency(v, c)} />
-            <Bar dataKey="pnl" radius={[6, 6, 0, 0]}>
+            <Bar dataKey="pnl" radius={[6, 6, 0, 0]} animationDuration={400}>
               {byDirection.map((g, i) => (
                 <Cell key={i} fill={g.netPnl >= 0 ? "var(--color-profit)" : "var(--color-loss)"} />
               ))}
@@ -403,11 +415,35 @@ function Select({
   );
 }
 
-function ChartCard({ title, children }: { title: string; children: React.ReactElement }) {
+function ChartCard({
+  title,
+  subtitle,
+  wide,
+  tall,
+  children,
+}: {
+  title: string;
+  subtitle?: string;
+  wide?: boolean;
+  tall?: boolean;
+  children: React.ReactElement;
+}) {
   return (
-    <div className="panel p-5">
-      <p className="mb-3 text-sm font-semibold">{title}</p>
-      <div className="h-56">
+    <div
+      className={cn(
+        "panel group relative overflow-hidden p-5 transition-all duration-300 hover:border-primary/30",
+        wide && "xl:col-span-2",
+      )}
+    >
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
+      <div className="mb-4 flex items-center gap-2">
+        <span className="h-4 w-1 rounded-full bg-primary" />
+        <div className="min-w-0">
+          <p className="truncate text-sm font-semibold tracking-tight">{title}</p>
+          {subtitle && <p className="truncate text-xs text-muted-foreground">{subtitle}</p>}
+        </div>
+      </div>
+      <div className={tall ? "h-72" : "h-56"}>
         <ResponsiveContainer width="100%" height="100%">
           {children}
         </ResponsiveContainer>
