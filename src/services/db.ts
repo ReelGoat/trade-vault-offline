@@ -48,5 +48,6 @@ export const defaultSettings = (): AppSettings => ({
   theme: "dark",
   backupReminder: true,
   createdAt: new Date().toISOString(),
-  updatedAt: new Date().toISOString(),
+  // Defaults are not an account edit and must never outrank a synced account.
+  updatedAt: "",
 });

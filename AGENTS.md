@@ -19,4 +19,5 @@
   silently drops every route but the root from the bundle.
 - Data lives in the local database first; network calls (GitHub sync) must never
   be required for the app to open or work offline.
+- Generated account defaults have no edit timestamp; GitHub merges recognize legacy untouched defaults too, so opening a fresh device cannot override a saved account's settings.
 

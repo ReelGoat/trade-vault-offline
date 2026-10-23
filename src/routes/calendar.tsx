@@ -26,6 +26,8 @@ import type { Trade } from "@/services/types";
 export const Route = createFileRoute("/calendar")({
   head: () => ({
     meta: [
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
       { title: "P&L Calendar — Trade Vault" },
       {
         name: "description",

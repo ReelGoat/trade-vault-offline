@@ -24,6 +24,8 @@ import {
 export const Route = createFileRoute("/backup")({
   head: () => ({
     meta: [
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
       { title: "Backup & Restore — Trade Vault" },
       { name: "description", content: "Export a complete JSON backup of your trades, setups and rules, or restore from a previous backup file." },
       { property: "og:title", content: "Backup & Restore — Trade Vault" },
