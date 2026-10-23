@@ -30,6 +30,8 @@ import type { Setup } from "@/services/types";
 export const Route = createFileRoute("/setups")({
   head: () => ({
     meta: [
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
       { title: "Trading Setups — Trade Vault" },
       { name: "description", content: "Define, score and manage your trading setups with criteria checklists and live performance stats." },
       { property: "og:title", content: "Trading Setups — Trade Vault" },

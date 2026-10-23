@@ -15,6 +15,8 @@ import { GithubSyncPanel } from "@/components/sync/GithubSyncPanel";
 export const Route = createFileRoute("/settings")({
   head: () => ({
     meta: [
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
       { title: "Settings — Trade Vault" },
       { name: "description", content: "Set your starting balance, default risk, currency, timezone, commissions and instrument list." },
       { property: "og:title", content: "Settings — Trade Vault" },

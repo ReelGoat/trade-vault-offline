@@ -39,6 +39,8 @@ import type { Trade } from "@/services/types";
 export const Route = createFileRoute("/analysis")({
   head: () => ({
     meta: [
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
       { title: "Performance Analysis — Trade Vault" },
       {
         name: "description",

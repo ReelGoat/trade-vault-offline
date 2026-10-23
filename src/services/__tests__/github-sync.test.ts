@@ -65,6 +65,7 @@ describe("account settings sync", () => {
     expect(mergePayloads(remoteAccount, freshAccount(true)).settings).toEqual(remoteAccount.settings);
   });
   it.each(["push", "pull"])("%s restores all remote preferences through storage", async (operation) => {
+    vi.stubGlobal("navigator", { onLine: true });
     const local = freshAccount(true);
     vi.spyOn(storage, "listTrades").mockResolvedValue(local.trades);
     vi.spyOn(storage, "listSetups").mockResolvedValue(local.setups);

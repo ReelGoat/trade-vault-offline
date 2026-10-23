@@ -22,6 +22,8 @@ const CATEGORIES: RuleCategory[] = ["risk", "entry", "exit", "psychology", "conf
 export const Route = createFileRoute("/rules")({
   head: () => ({
     meta: [
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
       { title: "Trading Rules — Trade Vault" },
       { name: "description", content: "Build your trading rulebook and measure performance when you follow rules versus break them." },
       { property: "og:title", content: "Trading Rules — Trade Vault" },
