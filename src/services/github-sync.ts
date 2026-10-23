@@ -3,6 +3,8 @@ import { buildBackup, validateBackup } from "./backup";
 import { storage } from "./storage";
 import type { BackupPayload } from "./types";
 import { loadTombstones, mergeTombstones, saveTombstones } from "./tombstones";
+import { defaultSettings } from "./db";
+import type { AppSettings } from "./types";
 
 /**
  * Optional GitHub sync. The local IndexedDB stays the source of truth;
@@ -209,10 +211,29 @@ export function applyTombstones<T extends { id: string; updatedAt?: string }>(li
   });
 }
 
-function mergePayloads(local: BackupPayload, remote: BackupPayload): BackupPayload {
+/** Also recognize defaults saved by older versions with a fresh timestamp. */
+function isUntouchedSettings(settings: AppSettings): boolean {
+  if (!settings.updatedAt) return true;
+  const created = Date.parse(settings.createdAt);
+  const updated = Date.parse(settings.updatedAt);
+  if (!Number.isFinite(created) || !Number.isFinite(updated) || Math.abs(updated - created) > 1) return false;
+  const defaults = defaultSettings();
+  return settings.accountStartingBalance === defaults.accountStartingBalance &&
+    settings.defaultRiskPercent === defaults.defaultRiskPercent &&
+    settings.baseCurrency === defaults.baseCurrency &&
+    settings.defaultCommission === defaults.defaultCommission &&
+    settings.theme === defaults.theme &&
+    settings.backupReminder === defaults.backupReminder &&
+    JSON.stringify(settings.instruments) === JSON.stringify(defaults.instruments);
+}
+
+export function mergePayloads(local: BackupPayload, remote: BackupPayload): BackupPayload {
   const deleted = mergeTombstones(local.deleted ?? {}, remote.deleted ?? {});
+  // Opening a fresh device creates defaults, not a newer account revision.
+  // Real edits still merge by timestamp; defaults never overwrite real settings.
   const settings =
-    !remote.settings || (local.settings && local.settings.updatedAt >= remote.settings.updatedAt)
+    !remote.settings || (local.settings && !isUntouchedSettings(local.settings) &&
+      (isUntouchedSettings(remote.settings) || local.settings.updatedAt >= remote.settings.updatedAt))
       ? local.settings
       : remote.settings;
   return {
