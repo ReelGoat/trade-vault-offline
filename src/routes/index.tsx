@@ -17,7 +17,6 @@ import {
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { TradeDrawer } from "@/components/trade/TradeDrawer";
-import { Watchlist } from "@/components/Watchlist";
 import type { Trade } from "@/services/types";
 import {
   Area,
@@ -220,7 +219,6 @@ function Dashboard() {
         )}
       </section>
 
-      <Watchlist />
 
       <section>
         <SectionTitle
